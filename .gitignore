@@ -6,3 +6,6 @@ packages/editor/dist/
 package-lock.json
 .DS_Store
 .vscode/
+.s3_mock/
+*.tsbuildinfo
+

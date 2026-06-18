@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run dev --workspace=@aether-forge/editor",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },

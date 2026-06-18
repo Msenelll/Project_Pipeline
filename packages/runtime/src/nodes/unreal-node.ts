@@ -91,7 +91,7 @@ export class UnrealImportNode extends BaseNode {
       context.reportProgress(100, 'Import completed successfully.');
       context.logger.info(`Unreal Import Response: ${JSON.stringify(response.output)}`);
 
-      const outputPacket = this.createPacket('String', response.output.importedAssetPath);
+      const outputPacket = this.createPacket('String', response.output.importedAssetPath, { localFilePath });
       return this.successResult({ importedAsset: outputPacket }, Date.now() - start);
     } catch (err: any) {
       context.logger.error(`Unreal Node execution error: ${err.message}`, err);
