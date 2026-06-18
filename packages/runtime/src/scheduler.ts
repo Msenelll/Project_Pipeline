@@ -7,6 +7,7 @@ import {
   StorageProvider,
   Logger
 } from '@aether-forge/sdk';
+import { PromptInputNode, OpenAINode, Meshy3DGeneratorNode, ElevenLabsNode } from './nodes/index.js';
 
 export interface WorkflowNodeInstance {
   id: string;
@@ -87,6 +88,14 @@ export class WorkflowScheduler {
   private registry = new Map<string, new () => INode>();
   private memory = new SimpleMemoryProvider();
   private storage = new SimpleStorageProvider();
+
+  constructor() {
+    // Auto-register default multimodal node types
+    this.registerNodeClass('PromptInputNode', PromptInputNode);
+    this.registerNodeClass('OpenAINode', OpenAINode);
+    this.registerNodeClass('Meshy3DGeneratorNode', Meshy3DGeneratorNode);
+    this.registerNodeClass('ElevenLabsNode', ElevenLabsNode);
+  }
 
   // Register an available node class definition
   public registerNodeClass(type: string, nodeClass: new () => INode): void {
