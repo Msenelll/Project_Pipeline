@@ -1,0 +1,971 @@
+# AETHER FORGE
+
+# Workflow Runtime Architecture Specification
+
+Version: 1.0
+
+Status: Draft
+
+Owner: Platform Architecture Team
+
+Prerequisite:
+
+* Node SDK Specification v1.0
+
+---
+
+# 1. Purpose
+
+Bu doküman Aether Forge Workflow Runtime Engine mimarisini tanımlar.
+
+Runtime Engine'in görevi:
+
+* Workflow yüklemek
+* Graph doğrulamak
+* Execution plan oluşturmak
+* Node'ları çalıştırmak
+* State yönetmek
+* Event yayınlamak
+* Cache kullanmak
+* Hata yönetmek
+* Paralel çalıştırmak
+
+ve tüm workflow yaşam döngüsünü yönetmektir.
+
+---
+
+# 2. Runtime Vision
+
+Runtime Engine;
+
+ComfyUI'nin graph execution sistemini,
+
+n8n'in workflow sistemini,
+
+LangGraph'ın agent orkestrasyonunu,
+
+Unreal Engine'in task graph yaklaşımını
+
+tek bir execution modelinde birleştirmelidir.
+
+---
+
+# 3. High Level Architecture
+
+```text
++------------------------------------------------------+
+|                  Workflow Runtime                    |
++------------------------------------------------------+
+
+      Workflow Loader
+               |
+               v
+
+      Graph Validator
+               |
+               v
+
+      Execution Planner
+               |
+               v
+
+      DAG Scheduler
+               |
+               v
+
+      Node Executor
+               |
+               v
+
+      Event Bus
+               |
+               v
+
+      State Manager
+               |
+               v
+
+      Storage Layer
+```
+
+---
+
+# 4. Runtime Components
+
+## Workflow Loader
+
+Görevleri:
+
+* JSON workflow yüklemek
+* Versiyon kontrolü yapmak
+* Plugin doğrulamak
+* Dependency kontrol etmek
+
+Input:
+
+```json
+workflow.json
+```
+
+Output:
+
+```text
+WorkflowDefinition
+```
+
+---
+
+## Graph Validator
+
+Görevleri:
+
+* Bağlantıları doğrulamak
+* Data type kontrolü yapmak
+* Cycle tespit etmek
+* Eksik node kontrolü yapmak
+
+Örnek:
+
+Geçersiz:
+
+```text
+Image Output
+     |
+     v
+Audio Input
+```
+
+Runtime hata vermelidir.
+
+---
+
+## Execution Planner
+
+Graph'i execution planına dönüştürür.
+
+Örnek:
+
+```text
+A
+
+↓
+
+B
+
+↓
+
+C
+```
+
+Execution Plan:
+
+```text
+Step 1 → A
+
+Step 2 → B
+
+Step 3 → C
+```
+
+---
+
+# 5. DAG Execution Model
+
+Workflow Directed Acyclic Graph olarak çalışır.
+
+Örnek:
+
+```text
+            A
+          /   \
+         B     C
+          \   /
+            D
+```
+
+Plan:
+
+```text
+A
+
+↓
+
+(B,C) Parallel
+
+↓
+
+D
+```
+
+---
+
+# 6. Execution States
+
+Node aşağıdaki state'lerde olabilir:
+
+```text
+Created
+
+Waiting
+
+Ready
+
+Running
+
+Completed
+
+Failed
+
+Cancelled
+
+Skipped
+```
+
+---
+
+# 7. Workflow States
+
+Workflow aşağıdaki state'lerde olabilir:
+
+```text
+Draft
+
+Queued
+
+Running
+
+Paused
+
+Completed
+
+Failed
+
+Cancelled
+```
+
+---
+
+# 8. Execution Context
+
+Workflow başlatıldığında global context oluşturulur.
+
+```typescript
+interface RuntimeContext
+{
+    workflowId:string;
+
+    executionId:string;
+
+    variables:Map;
+
+    memory:MemoryStore;
+
+    cache:CacheStore;
+
+    logger:Logger;
+
+    secrets:SecretManager;
+}
+```
+
+Bu context tüm node'lar tarafından paylaşılır.
+
+---
+
+# 9. Data Flow Model
+
+Node'lar yalnızca portlar üzerinden haberleşir.
+
+Yasak:
+
+```text
+Node A
+
+↓
+
+Node B internals
+```
+
+İzin verilen:
+
+```text
+Node A Output
+
+↓
+
+Node B Input
+```
+
+---
+
+# 10. Packet Transport Layer
+
+Tüm veriler DataPacket olarak taşınır.
+
+```typescript
+DataPacket<T>
+```
+
+Örnek:
+
+```json
+{
+  "id":"packet_001",
+  "type":"Image",
+  "payload":{},
+  "metadata":{}
+}
+```
+
+---
+
+# 11. Scheduler
+
+Scheduler runtime'ın çekirdeğidir.
+
+Görevleri:
+
+* Hazır node bulmak
+* Paralel node çalıştırmak
+* Dependency takip etmek
+* Retry planlamak
+
+---
+
+# 12. Parallel Execution
+
+Örnek:
+
+```text
+Prompt
+
+↓
+
+GPT
+
+↓
+
+Character
+Environment
+Music
+
+↓
+
+Merge
+```
+
+Character
+
+Environment
+
+Music
+
+aynı anda çalışmalıdır.
+
+---
+
+# 13. Execution Queue
+
+Queue tipleri:
+
+```text
+CPU Queue
+
+GPU Queue
+
+IO Queue
+
+Agent Queue
+
+Realtime Queue
+```
+
+Örnek:
+
+```text
+Meshy
+
+↓
+
+GPU Queue
+```
+
+---
+
+# 14. Resource Manager
+
+Kaynak yönetimi sağlar.
+
+Takip edilen kaynaklar:
+
+```text
+CPU
+
+RAM
+
+GPU
+
+VRAM
+
+Disk
+
+Network
+```
+
+---
+
+# 15. GPU Task Management
+
+GPU kullanan node'lar:
+
+```text
+Flux
+
+SDXL
+
+ComfyUI
+
+Meshy
+
+Tripo
+
+Video Models
+```
+
+GPU scheduler tarafından yönetilir.
+
+---
+
+# 16. Cache Layer
+
+Amaç:
+
+Aynı işi tekrar çalıştırmamak.
+
+Örnek:
+
+```text
+Prompt
+
+↓
+
+Flux
+
+↓
+
+Image
+```
+
+Aynı prompt tekrar gelirse cache döndürülür.
+
+---
+
+# 17. Cache Types
+
+```text
+Memory Cache
+
+Redis Cache
+
+Disk Cache
+
+Cloud Cache
+```
+
+---
+
+# 18. Retry Engine
+
+Hata alan node tekrar çalıştırılabilir.
+
+Politikalar:
+
+```text
+Immediate Retry
+
+Exponential Backoff
+
+Manual Retry
+```
+
+Örnek:
+
+```text
+OpenAI Timeout
+
+↓
+
+Retry
+```
+
+---
+
+# 19. Timeout Manager
+
+Node timeout tanımlayabilir.
+
+Örnek:
+
+```text
+ChatGPT
+
+60 sec
+
+Meshy
+
+10 min
+
+Video Generation
+
+30 min
+```
+
+---
+
+# 20. Event Bus
+
+Tüm runtime olayları event olarak yayınlanır.
+
+---
+
+## Workflow Events
+
+```text
+WorkflowStarted
+
+WorkflowPaused
+
+WorkflowCompleted
+
+WorkflowFailed
+```
+
+---
+
+## Node Events
+
+```text
+NodeStarted
+
+NodeCompleted
+
+NodeFailed
+
+NodeCancelled
+```
+
+---
+
+## Asset Events
+
+```text
+AssetGenerated
+
+AssetImported
+
+AssetExported
+```
+
+---
+
+# 21. Logging System
+
+Log seviyeleri:
+
+```text
+Trace
+
+Debug
+
+Info
+
+Warning
+
+Error
+
+Fatal
+```
+
+---
+
+# 22. Audit Trail
+
+Her execution saklanmalıdır.
+
+Kayıt:
+
+```text
+Node
+
+Input
+
+Output
+
+Duration
+
+Provider
+
+Cost
+```
+
+---
+
+# 23. Cost Tracking
+
+Her node maliyet raporlayabilir.
+
+Örnek:
+
+```text
+GPT-5
+
+$0.02
+
+Claude
+
+$0.03
+
+Meshy
+
+$0.10
+```
+
+Workflow toplam maliyeti hesaplanır.
+
+---
+
+# 24. Storage Architecture
+
+## Runtime Storage
+
+Execution History
+
+Logs
+
+Metrics
+
+Cache
+
+---
+
+## Asset Storage
+
+Images
+
+Videos
+
+Audio
+
+Meshes
+
+Textures
+
+Blueprints
+
+---
+
+## Knowledge Storage
+
+Embeddings
+
+Documents
+
+Memory
+
+Vectors
+
+---
+
+# 25. Agent Runtime
+
+Agent node'ları normal node'lardan farklı çalışır.
+
+Lifecycle:
+
+```text
+Plan
+
+↓
+
+Execute
+
+↓
+
+Evaluate
+
+↓
+
+Reflect
+
+↓
+
+Continue
+```
+
+---
+
+# 26. Multi-Agent Runtime
+
+Örnek:
+
+```text
+Supervisor
+
+↓
+
+Character Agent
+
+Environment Agent
+
+Music Agent
+
+↓
+
+Reviewer Agent
+```
+
+Paralel çalışmalıdır.
+
+---
+
+# 27. Human Approval Gates
+
+Workflow belirli noktalarda durdurulabilir.
+
+Örnek:
+
+```text
+Generate Character
+
+↓
+
+WAIT APPROVAL
+
+↓
+
+Generate Mesh
+```
+
+---
+
+# 28. Long Running Tasks
+
+Desteklenmelidir.
+
+Örnek:
+
+```text
+Video Generation
+
+45 min
+
+↓
+
+Continue Workflow
+```
+
+Runtime yeniden başlatılsa bile devam edebilmelidir.
+
+---
+
+# 29. Checkpoint System
+
+Workflow snapshot alınabilir.
+
+Checkpoint:
+
+```text
+State
+
+Variables
+
+Outputs
+
+Logs
+```
+
+Kaydedilir.
+
+---
+
+# 30. Resume System
+
+Sunucu restart olsa bile:
+
+```text
+Checkpoint
+
+↓
+
+Restore
+
+↓
+
+Continue
+```
+
+çalışmalıdır.
+
+---
+
+# 31. Workflow Versioning
+
+Her workflow:
+
+```text
+Version
+
+Author
+
+Created Date
+
+Updated Date
+```
+
+saklar.
+
+---
+
+# 32. Distributed Runtime
+
+Future Scope
+
+Bir workflow farklı worker'lara dağıtılabilir.
+
+Örnek:
+
+```text
+Worker 1
+
+LLM Nodes
+
+Worker 2
+
+Image Nodes
+
+Worker 3
+
+3D Nodes
+```
+
+---
+
+# 33. MCP Runtime Integration
+
+Future Scope
+
+Node'lar MCP araçlarını çalıştırabilir.
+
+Örnek:
+
+```text
+GPT
+
+↓
+
+MCP Tool
+
+↓
+
+Unreal Editor
+
+↓
+
+Result
+```
+
+---
+
+# 34. Unreal Runtime Integration
+
+Future Scope
+
+Runtime doğrudan Unreal Editor ile haberleşebilir.
+
+Destek:
+
+```text
+Asset Import
+
+Blueprint Creation
+
+Material Creation
+
+Niagara Generation
+
+Build Automation
+```
+
+---
+
+# 35. Security Model
+
+Node sandbox içerisinde çalışmalıdır.
+
+Node erişimleri:
+
+```text
+Filesystem
+
+Network
+
+Secrets
+
+GPU
+```
+
+izin sistemiyle kontrol edilir.
+
+---
+
+# 36. Runtime Metrics
+
+Takip edilen metrikler:
+
+```text
+Execution Duration
+
+Node Duration
+
+Memory Usage
+
+GPU Usage
+
+Cost
+
+Success Rate
+
+Retry Count
+```
+
+---
+
+# 37. Failure Recovery
+
+Desteklenmesi gereken senaryolar:
+
+```text
+Provider Failure
+
+GPU Crash
+
+Worker Crash
+
+Network Failure
+
+Storage Failure
+```
+
+Workflow mümkünse kaldığı yerden devam eder.
+
+---
+
+# 38. Golden Rule
+
+Runtime'ın temel görevi:
+
+Bir workflow graph'ını güvenli, deterministik, ölçeklenebilir ve tekrar üretilebilir şekilde çalıştırmaktır.
+
+Node geliştiricileri yalnızca node'a odaklanmalıdır.
+
+Orkestrasyonun tamamı Runtime Engine tarafından yönetilmelidir.

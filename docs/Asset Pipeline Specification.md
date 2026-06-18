@@ -1,6 +1,6 @@
 # AETHER FORGE
 
-# Unreal Engine Integration Specification
+# Asset Pipeline Specification
 
 Version: 1.0
 
@@ -8,559 +8,354 @@ Status: Draft
 
 Dependencies:
 
-* Node SDK Specification
 * Workflow Runtime Architecture
 * Multi-Agent Framework
-* MCP Integration Specification
-
-Supported Engine Versions:
-
-* Unreal Engine 5.8+
-* Future: Unreal Engine 6.x
+* MCP Integration
+* Unreal Engine Integration
 
 ---
 
 # 1. Purpose
 
-Bu doküman Aether Forge ile Unreal Engine arasındaki entegrasyon katmanını tanımlar.
-
-Amaç yalnızca asset import etmek değildir.
+Bu doküman Aether Forge'un standart Asset Production Framework'ünü tanımlar.
 
 Amaç:
 
-AI Agent'ların ve Workflow'ların Unreal Engine editörünü kontrollü şekilde yönetebilmesini sağlamaktır.
+Farklı AI sistemlerinden gelen çıktıları ortak bir üretim standardına dönüştürmektir.
+
+Desteklenen alanlar:
+
+* Documentation
+* Concept Art
+* 2D Assets
+* 3D Assets
+* Animation
+* Audio
+* Music
+* Voice
+* Video
+* Gameplay Assets
+* Unreal Assets
 
 ---
 
-# 2. Vision
+# 2. Production Philosophy
 
-Uzun vadeli hedef:
+Her asset pipeline aşağıdaki aşamalardan geçmelidir.
 
 ```text
-Idea
+Goal
 
 ↓
 
-Agents
+Planning
 
 ↓
 
-Assets
+Generation
 
 ↓
 
-Unreal Engine
+Validation
 
 ↓
 
-Playable Prototype
-```
-
-oluşturabilmektir.
-
----
-
-# 3. Integration Modes
-
-## Mode 1
-
-File Based Integration
-
----
-
-## Mode 2
-
-Python Automation
-
----
-
-## Mode 3
-
-Editor Utility Integration
-
----
-
-## Mode 4
-
-UE MCP Integration
-
----
-
-## Mode 5
-
-Remote Unreal Runtime
-
-Future Scope
-
----
-
-# 4. Architecture
-
-```text
-Aether Forge
+Optimization
 
 ↓
 
-Workflow Runtime
+Export
 
 ↓
 
-MCP Layer
-
-↓
-
-UE Integration Layer
-
-↓
-
-Unreal Editor
-
-↓
-
-Project Content
+Integration
 ```
 
 ---
 
-# 5. Unreal Connection Manager
+# 3. Universal Asset Contract
 
-Görevleri:
-
-* Engine keşfi
-* Proje keşfi
-* Versiyon doğrulama
-* Bağlantı yönetimi
-
----
-
-# 6. Project Discovery
-
-Tespit edilmesi gerekenler:
-
-```text
-Engine Version
-
-Project Path
-
-Plugins
-
-Content Folder
-
-Source Folder
-
-Build Configuration
-```
-
----
-
-# 7. Unreal Workspace Model
+Tüm assetler ortak metadata taşır.
 
 ```typescript
-interface UnrealWorkspace
+interface Asset
 {
-    engineVersion:string;
+    id:string;
 
-    projectPath:string;
+    type:string;
 
-    contentPath:string;
+    subtype:string;
 
-    sourcePath:string;
+    name:string;
 
-    plugins:string[];
+    source:string;
+
+    createdBy:string;
+
+    createdAt:string;
+
+    tags:string[];
+
+    files:string[];
+
+    metadata:any;
 }
 ```
 
 ---
 
-# 8. Asset Categories
+# 4. Asset Categories
 
-## Art Assets
+## Documentation
 
 ```text
-Static Mesh
+GDD
+TDD
+NDD
+ADD
+PAS
+Quest
+Lore
+Dialogue
+```
 
-Skeletal Mesh
+---
 
-Texture
+## 2D
 
-Material
+```text
+Concept Art
+UI
+Icons
+Textures
+Cards
+Portraits
+```
+
+---
+
+## 3D
+
+```text
+Characters
+Props
+Weapons
+Buildings
+Environment
+Vehicles
+Creatures
+```
+
+---
+
+## Audio
+
+```text
+Voice
+Music
+SFX
+Ambient
+```
+
+---
+
+## Video
+
+```text
+Cutscene
+Trailer
+Marketing
+Gameplay
+```
+
+---
+
+# 5. Asset Quality Gates
+
+Her pipeline sonunda:
+
+```text
+Technical Validation
+
+↓
+
+Style Validation
+
+↓
+
+Performance Validation
+
+↓
+
+Project Validation
+```
+
+çalıştırılmalıdır.
+
+---
+
+# 6. Character Pipeline
+
+## Goal
+
+Oynanabilir karakter üretmek.
+
+---
+
+### Stage 1
+
+Character Brief
+
+```text
+Name
+
+Role
+
+Culture
+
+Abilities
+
+Visual Style
+```
+
+---
+
+### Stage 2
+
+Concept Generation
+
+Araçlar:
+
+```text
+GPT
+Claude
+Gemini
+```
+
+---
+
+### Stage 3
+
+Concept Art
+
+Araçlar:
+
+```text
+Flux
+SDXL
+ComfyUI
+Midjourney Wrapper
+```
+
+---
+
+### Stage 4
+
+3D Model
+
+Araçlar:
+
+```text
+Meshy
+Tripo
+Rodin
+Hunyuan 3D
+```
+
+---
+
+### Stage 5
+
+Retopology
+
+---
+
+### Stage 6
+
+UV Generation
+
+---
+
+### Stage 7
+
+Texture Generation
+
+---
+
+### Stage 8
+
+Rigging
+
+---
+
+### Stage 9
 
 Animation
 
-Control Rig
-```
+---
+
+### Stage 10
+
+Unreal Import
 
 ---
 
-## Gameplay Assets
+# 7. Enemy Pipeline
 
 ```text
+Enemy Brief
+
+↓
+
+Concept
+
+↓
+
+Mesh
+
+↓
+
+Textures
+
+↓
+
+Rig
+
+↓
+
+Animation
+
+↓
+
 Blueprint
 
-Data Asset
-
-Behavior Tree
-
-Blackboard
-
-Widget Blueprint
-```
-
----
-
-## VFX Assets
-
-```text
-Niagara System
-
-Niagara Module
-
-Niagara Emitter
-```
-
----
-
-## Audio Assets
-
-```text
-Sound Wave
-
-Meta Sound
-
-Sound Cue
-```
-
----
-
-# 9. Asset Import Pipeline
-
-```text
-Asset Generated
-
 ↓
 
-Validation
-
-↓
-
-Import
-
-↓
-
-Verification
-
-↓
-
-Registry Update
+QA
 ```
 
 ---
 
-# 10. Supported Imports
+# 8. Boss Pipeline
+
+Ek gereksinimler:
 
 ```text
-FBX
+Multiple Phases
 
-OBJ
+Unique Animations
 
-GLB
+Unique VFX
 
-GLTF
-
-PNG
-
-TGA
-
-WAV
-
-MP3
-
-CSV
-
-JSON
+Unique Audio
 ```
 
 ---
 
-# 11. Asset Metadata
-
-Her asset:
-
-```typescript
-interface AssetMetadata
-{
-    source;
-
-    creator;
-
-    generatedBy;
-
-    createdAt;
-
-    tags;
-}
-```
-
-saklamalıdır.
-
----
-
-# 12. Folder Standards
-
-Varsayılan yapı:
+# 9. Weapon Pipeline
 
 ```text
-Content/
-
-Characters/
-
-Enemies/
-
-Bosses/
-
-Weapons/
-
-Environment/
-
-UI/
-
-Audio/
-
-VFX/
-
-Animations/
-
-Materials/
-
-Data/
-
-Blueprints/
-```
-
----
-
-# 13. Asset Validation Rules
-
-Kontroller:
-
-```text
-Naming
-
-Folder Rules
-
-LOD Rules
-
-Material Rules
-
-Collision Rules
-
-Performance Rules
-```
-
----
-
-# 14. Naming Convention System
-
-Örnek:
-
-```text
-SM_Character
-
-SK_Player
-
-MI_Stone
-
-BP_Enemy
-
-DA_Quest
-
-NS_Fire
-```
-
----
-
-# 15. Blueprint Generation
-
-Agent'lar Blueprint oluşturabilir.
-
-Destek:
-
-```text
-Actor
-
-Pawn
-
-Character
-
-GameMode
-
-GameState
-
-Widget
-
-ActorComponent
-```
-
----
-
-# 16. Blueprint Generation Workflow
-
-```text
-Design Goal
-
-↓
-
-Blueprint Agent
-
-↓
-
-Blueprint Schema
-
-↓
-
-Blueprint Creation
-
-↓
-
-Validation
-```
-
----
-
-# 17. Data Asset Generation
-
-Üretilebilir:
-
-```text
-Enemy Data
-
-Quest Data
-
-Weapon Data
-
-Dialogue Data
-
-Character Data
-```
-
----
-
-# 18. Gameplay Framework Support
-
-Desteklenmelidir:
-
-```text
-GameMode
-
-PlayerController
-
-Pawn
-
-Character
-
-GameInstance
-
-Subsystems
-```
-
----
-
-# 19. Niagara Integration
-
-Üretilebilir:
-
-```text
-Fire
-
-Smoke
-
-Magic
-
-Water
-
-Dust
-
-Impact Effects
-```
-
----
-
-# 20. Niagara Workflow
-
-```text
-Prompt
-
-↓
-
-VFX Agent
-
-↓
-
-Niagara Definition
-
-↓
-
-Niagara Asset
-
-↓
-
-Validation
-```
-
----
-
-# 21. Material Generation
-
-Destek:
-
-```text
-Material
-
-Material Instance
-
-Material Function
-```
-
----
-
-# 22. Texture Pipeline
-
-```text
-Diffuse
-
-Normal
-
-Roughness
-
-Metallic
-
-AO
-
-Opacity
-```
-
----
-
-# 23. Animation Integration
-
-Destek:
-
-```text
-Animation Sequence
-
-Blend Space
-
-Montage
-
-Control Rig
-```
-
----
-
-# 24. Character Pipeline
-
-```text
-Character Prompt
+Weapon Brief
 
 ↓
 
@@ -576,6 +371,134 @@ Texture
 
 ↓
 
+Animation
+
+↓
+
+Sound
+
+↓
+
+Unreal Import
+```
+
+---
+
+# 10. Environment Pipeline
+
+```text
+Environment Brief
+
+↓
+
+Moodboard
+
+↓
+
+Concept Art
+
+↓
+
+Asset List
+
+↓
+
+Mesh Generation
+
+↓
+
+Materials
+
+↓
+
+Optimization
+
+↓
+
+Unreal Integration
+```
+
+---
+
+# 11. Building Pipeline
+
+```text
+Building Description
+
+↓
+
+Concept
+
+↓
+
+Mesh
+
+↓
+
+Materials
+
+↓
+
+LOD
+
+↓
+
+Collision
+
+↓
+
+Import
+```
+
+---
+
+# 12. Vehicle Pipeline
+
+```text
+Vehicle Design
+
+↓
+
+Concept
+
+↓
+
+Mesh
+
+↓
+
+Materials
+
+↓
+
+Rig
+
+↓
+
+Import
+```
+
+---
+
+# 13. Creature Pipeline
+
+```text
+Creature Lore
+
+↓
+
+Concept
+
+↓
+
+3D Mesh
+
+↓
+
+Textures
+
+↓
+
 Rig
 
 ↓
@@ -584,27 +507,388 @@ Animation
 
 ↓
 
-Import
+AI Setup
+```
+
+---
+
+# 14. Texture Pipeline
+
+Destek:
+
+```text
+Albedo
+
+Normal
+
+Metallic
+
+Roughness
+
+AO
+
+Opacity
+```
+
+---
+
+# 15. Material Pipeline
+
+```text
+Material Prompt
 
 ↓
+
+Texture Generation
+
+↓
+
+Material Graph
+
+↓
+
+Material Instance
+```
+
+---
+
+# 16. Animation Pipeline
+
+Destek:
+
+```text
+Idle
+
+Walk
+
+Run
+
+Attack
+
+Death
+
+Special
+```
+
+---
+
+# 17. Motion Capture Pipeline
+
+Future Scope
+
+```text
+Video
+
+↓
+
+Pose Extraction
+
+↓
+
+Animation Retargeting
+```
+
+---
+
+# 18. VFX Pipeline
+
+```text
+Effect Brief
+
+↓
+
+Concept
+
+↓
+
+Niagara Definition
+
+↓
+
+Niagara Generation
+
+↓
+
+Validation
+```
+
+---
+
+# 19. UI Pipeline
+
+```text
+Wireframe
+
+↓
+
+UI Concept
+
+↓
+
+Icons
+
+↓
+
+Widgets
+
+↓
+
+Unreal UI
+```
+
+---
+
+# 20. Documentation Pipeline
+
+```text
+Idea
+
+↓
+
+GDD
+
+↓
+
+TDD
+
+↓
+
+NDD
+
+↓
+
+Asset Matrix
+
+↓
+
+Production Backlog
+```
+
+---
+
+# 21. Dialogue Pipeline
+
+```text
+Lore
+
+↓
+
+Dialogue
+
+↓
+
+Review
+
+↓
+
+Voice Generation
+```
+
+---
+
+# 22. Voice Pipeline
+
+Araçlar:
+
+```text
+ElevenLabs
+
+XTTS
+
+OpenVoice
+```
+
+---
+
+# 23. Music Pipeline
+
+Araçlar:
+
+```text
+Suno
+
+Udio
+
+Custom Models
+```
+
+---
+
+### Outputs
+
+```text
+Combat
+
+Ambient
+
+Boss
+
+Menu
+
+Victory
+```
+
+---
+
+# 24. SFX Pipeline
+
+```text
+Footstep
+
+Magic
+
+Explosion
+
+Weapon
+
+UI
+```
+
+---
+
+# 25. Video Pipeline
+
+Araçlar:
+
+```text
+Veo
+
+Runway
+
+Kling
+
+Luma
+```
+
+---
+
+### Outputs
+
+```text
+Cutscene
+
+Trailer
+
+Cinematic
+```
+
+---
+
+# 26. Asset Validation Framework
+
+Her asset:
+
+```text
+Technical
+
+Artistic
+
+Performance
+
+Gameplay
+```
+
+kontrollerinden geçmelidir.
+
+---
+
+# 27. Technical Validation
+
+Örnek:
+
+```text
+Poly Count
+
+Texture Resolution
+
+File Size
+
+Format
+```
+
+---
+
+# 28. Art Validation
+
+Kontroller:
+
+```text
+Style Match
+
+Consistency
+
+Silhouette
+
+Readability
+```
+
+---
+
+# 29. Gameplay Validation
+
+Kontroller:
+
+```text
+Collision
+
+Interaction
+
+Animation
 
 Blueprint
 ```
 
 ---
 
-# 25. Environment Pipeline
+# 30. Optimization Pipeline
+
+Destek:
 
 ```text
-Environment Prompt
+LOD Generation
+
+Texture Compression
+
+Mesh Simplification
+
+Animation Compression
+```
+
+---
+
+# 31. Asset Registry
+
+Tüm assetler kayıt altına alınır.
+
+```typescript
+interface AssetRegistry
+{
+    assetId:string;
+
+    type:string;
+
+    owner:string;
+
+    dependencies:string[];
+}
+```
+
+---
+
+# 32. Dependency Graph
+
+Takip edilir:
+
+```text
+Character
 
 ↓
 
-Asset Set
+Mesh
 
 ↓
 
-Meshes
+Textures
 
 ↓
 
@@ -612,219 +896,117 @@ Materials
 
 ↓
 
-Import
+Animations
+```
+
+---
+
+# 33. Asset Versioning
+
+Her asset:
+
+```text
+Major
+
+Minor
+
+Patch
+```
+
+versiyonlarına sahip olmalıdır.
+
+---
+
+# 34. Asset Review Workflow
+
+```text
+Generate
 
 ↓
 
-Level Placement
-```
-
----
-
-# 26. Audio Integration
-
-Destek:
-
-```text
-Voice
-
-Music
-
-SFX
-
-MetaSounds
-```
-
----
-
-# 27. Level Generation
-
-Future Scope
-
-Agent'lar:
-
-```text
-Landscape
-
-Buildings
-
-Props
-
-Lighting
-
-Volumes
-```
-
-yerleştirebilir.
-
----
-
-# 28. World Partition Support
-
-Desteklenmelidir.
-
-Özellikle büyük açık dünya projeleri için.
-
----
-
-# 29. Unreal Python Layer
-
-Desteklenen işlemler:
-
-```text
-Import Assets
-
-Create Assets
-
-Modify Assets
-
-Rename Assets
-
-Delete Assets
-
-Run Validation
-```
-
----
-
-# 30. Editor Utility Layer
-
-Destek:
-
-```text
-Batch Import
-
-Folder Creation
-
-Asset Audit
-
-Data Generation
-```
-
----
-
-# 31. UE MCP Integration
-
-UE 5.8+
-
-Örnek araçlar:
-
-```text
-Create Blueprint
-
-Create Material
-
-Import Asset
-
-Execute Python
-
-Build Project
-
-Package Project
-```
-
----
-
-# 32. Build Automation
-
-Destek:
-
-```text
-Development Build
-
-Shipping Build
-
-Dedicated Server Build
-```
-
----
-
-# 33. Packaging Automation
-
-Destek:
-
-```text
-Windows
-
-Linux
-
-Android
-
-iOS
-```
-
----
-
-# 34. Validation Pipeline
-
-Her import sonrası:
-
-```text
-Asset Audit
+Review Agent
 
 ↓
 
-Performance Check
+Approve
 
-↓
+or
 
-Naming Check
-
-↓
-
-Reference Check
-
-↓
-
-Pass
+Reject
 ```
 
 ---
 
-# 35. Dependency Analysis
+# 35. Marketplace Compatibility
 
-Takip edilir:
+Assetler:
 
 ```text
-Blueprint References
+Unreal
 
-Material References
+Unity
 
-Asset References
+GLTF
+
+USD
+```
+
+formatlarına dönüştürülebilmelidir.
+
+---
+
+# 36. Project Templates
+
+Hazır pipeline paketleri:
+
+```text
+RPG
+
+Roguelike
+
+Survival
+
+Shooter
+
+Visual Novel
 ```
 
 ---
 
-# 36. Unreal Agent Team
-
-Örnek:
+# 37. Production Team Templates
 
 ```text
-Technical Director Agent
+Art Team
+
+Narrative Team
+
+Technical Team
+
+Audio Team
+```
+
+---
+
+# 38. Full Character Example
+
+```text
+Character Idea
 
 ↓
 
-Blueprint Agent
+Narrative Agent
 
-Material Agent
+↓
 
-Niagara Agent
-
-Build Agent
-
-QA Agent
-```
-
----
-
-# 37. Production Pipeline Example
-
-```text
-Character Agent
+Concept Agent
 
 ↓
 
 Meshy Agent
+
+↓
+
+Retopo Agent
 
 ↓
 
@@ -840,33 +1022,11 @@ Animation Agent
 
 ↓
 
-Unreal Agent
-
-↓
-
-Blueprint Agent
-
-↓
-
 QA Agent
-```
 
----
+↓
 
-# 38. Performance Metrics
-
-Takip edilir:
-
-```text
-Import Time
-
-Asset Count
-
-Build Time
-
-Package Time
-
-Validation Errors
+Unreal Agent
 ```
 
 ---
@@ -875,41 +1035,27 @@ Validation Errors
 
 Planned:
 
-* C++ Code Generation
-* Gameplay Ability System Generation
-* Mass Framework Integration
-* PCG Generation
-* Verse Integration
-* UE6 Support
+* Houdini Integration
+* MetaHuman Integration
+* Motion Matching Generation
+* Procedural Animation
+* AI Driven LOD Creation
+* Automatic Asset Repair
 
 ---
 
-# 40. Unreal Project Template Support
+# 40. Golden Rule
 
-Hazır şablonlar:
+Her asset pipeline:
 
-```text
-Top Down
+Üretilebilir,
 
-Third Person
+Tekrarlanabilir,
 
-RPG
+Doğrulanabilir,
 
-Survival
+Optimize edilebilir,
 
-Roguelike
+Motor bağımsız şekilde tasarlanmalıdır.
 
-Shooter
-```
-
----
-
-# 41. Golden Rule
-
-Aether Forge hiçbir zaman Unreal Engine'in yerine geçmez.
-
-Aether Forge'un görevi:
-
-Unreal Engine üretim süreçlerini hızlandırmak, standartlaştırmak ve otomatize etmektir.
-
-Tüm üretilen içerikler Unreal Engine'in doğal asset ve workflow yapısına uyumlu olmalıdır.
+Aynı pipeline farklı üretim araçlarıyla çalıştırılabilmelidir.
