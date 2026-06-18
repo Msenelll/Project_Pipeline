@@ -7,7 +7,7 @@ import {
   StorageProvider,
   Logger
 } from '@aether-forge/sdk';
-import { PromptInputNode, OpenAINode, Meshy3DGeneratorNode, ElevenLabsNode } from './nodes/index.js';
+import { PromptInputNode, OpenAINode, Meshy3DGeneratorNode, ElevenLabsNode, UnrealImportNode } from './nodes/index.js';
 
 export interface WorkflowNodeInstance {
   id: string;
@@ -95,6 +95,7 @@ export class WorkflowScheduler {
     this.registerNodeClass('OpenAINode', OpenAINode);
     this.registerNodeClass('Meshy3DGeneratorNode', Meshy3DGeneratorNode);
     this.registerNodeClass('ElevenLabsNode', ElevenLabsNode);
+    this.registerNodeClass('UnrealImportNode', UnrealImportNode);
   }
 
   // Register an available node class definition
