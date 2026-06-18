@@ -2,6 +2,7 @@ node_modules/
 dist/
 packages/sdk/dist/
 packages/runtime/dist/
+packages/editor/dist/
 package-lock.json
 .DS_Store
 .vscode/
